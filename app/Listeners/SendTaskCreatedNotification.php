@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Listeners;
+use App\Events\TaskCreated;
+
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,9 +14,9 @@ class SendTaskCreatedNotification
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($id)
     {
-        //
+        $this->events = $id;
     }
 
     /**
@@ -23,8 +25,8 @@ class SendTaskCreatedNotification
      * @param  object  $event
      * @return void
      */
-    public function handle($event)
+    public function handle(TaskCreated $event)
     {
-        //
+        return response()->json('Task Created successfully.'    );
     }
 }

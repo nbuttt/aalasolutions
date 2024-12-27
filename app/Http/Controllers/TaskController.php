@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Listeners\SendTaskCreatedNotification;
 use App\Models\User;
-// use Auth;
+use Auth;
 class TaskController extends Controller
 {
     public function index(){
         // list all authenticated users
-        // return response()->json(User::all()->where('id',Auth::user()->id)->with('tasks')->get());
-        return response()->json(User::where('id',2)->with('tasks')->get());
+        return response()->json(User::where('id',Auth::user()->id)->with('tasks')->get());
     }
     public function store(Request $request){
         // Create a new task. Validate the request data and dispatch an event for task creation
@@ -22,20 +22,20 @@ class TaskController extends Controller
             'status' => 'in:pending,in_progress,completed',
         ]);
 
-        $validated['user_id'] = 2;
+        $validated['user_id'] = Auth::user()->id;
 
         $task = Task::create($validated);
-
+        dispatch(new SendTaskCreatedNotification(Auth::user()->id));
         return response()->json($task);
     }
     public function show($id){
         // Show a specific task for the authenticated user
-        // $this->authorize('view', $id);
-        return response()->json(Task::all()->where('id' , $id)->where('user_id' , 2 ));
+        $this->authorize('view', $id);
+        return response()->json(Task::all()->where('id' , $id)->where('user_id' , Auth::user()->id ));
     }
     public function update(Request $request, $id){
         // Update a specific task. Validate the request data
-        // $this->authorize('update', arguments: $id);
+        $this->authorize('update', arguments: $id);
         $validated = $request->validate([
             'title' => 'string',
             'description' => 'string',
@@ -54,7 +54,7 @@ class TaskController extends Controller
     }
     public function destroy($id){
         // Delete a specific task
-        // $this->authorize('delete', $id);
+        $this->authorize('delete', $id);
         Task::find($id)->delete();
         return response()->noContent();
     }

@@ -21,10 +21,12 @@ use Illuminate\Support\Facades\Route;
 
 // });
 
-// Route::middleware('auth:sanctum')->group( function () {
+Route::post('/login', [LoginController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group( function () {
     Route::get('/tasks', [TaskController::class,'index']);
     Route::post('/tasks', action: [TaskController::class,'store']);
-    Route::get('/tasks/{id}', [TaskController::class,'show']);
-    Route::put('/tasks/{id}', [TaskController::class,'update']);
-    Route::delete('/tasks/{id}', [TaskController::class,'destroy']);
-// });
+    Route::get('/tasks/{id}', [TaskController::class,'show'])->middleware('ensure-user');
+    Route::put('/tasks/{id}', [TaskController::class,'update'])->middleware('ensure-user');
+    Route::delete('/tasks/{id}', [TaskController::class,'destroy'])->middleware('ensure-user');
+});

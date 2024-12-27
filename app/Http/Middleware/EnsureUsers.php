@@ -4,7 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-
+use Auth;
+use App\Models\Task;
 class EnsureUsers
 {
     /**
@@ -16,8 +17,11 @@ class EnsureUsers
      */
     public function handle(Request $request, Closure $next)
     {
-
-        
-        return $next($request);
+        if(Task::where('user_id',Auth::user()->id)){
+            return $next($request);
+        }
+        else {
+            return response()->json('Not a Valid Request');
+        }
     }
 }
